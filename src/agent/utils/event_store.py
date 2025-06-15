@@ -5,6 +5,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from datetime import datetime
+import threading
 
 from agent.utils.event_bus import Event
 
@@ -14,8 +15,13 @@ class SQLiteEventStore:
 
     def __init__(self, db_path: str | Path = "events.db") -> None:
         self.db_path = Path(db_path)
-        self._conn = sqlite3.connect(self.db_path)
+        if not self.db_path.parent.exists():
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Permitir acceso desde múltiples hilos
+        self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
+        self._lock = threading.Lock()
         self._create_schema()
 
     # ---------------------------------------------------------------------
@@ -24,7 +30,7 @@ class SQLiteEventStore:
 
     def save_event(self, event: Event) -> None:
         """Guarda un evento en la base de datos."""
-        with self._conn:  # maneja commit automáticamente
+        with self._lock:
             self._conn.execute(
                 """
                 INSERT INTO events (event_type, payload, created_at)
@@ -39,26 +45,27 @@ class SQLiteEventStore:
 
     def get_events(self, event_type: Optional[str] = None) -> List[Event]:
         """Recupera eventos opcionalmente filtrados por tipo."""
-        cursor = self._conn.cursor()
-        if event_type:
-            cursor.execute(
-                "SELECT event_type, payload, created_at FROM events WHERE event_type = ?",
-                (event_type,),
-            )
-        else:
-            cursor.execute("SELECT event_type, payload, created_at FROM events")
-
-        rows = cursor.fetchall()
-        events: List[Event] = []
-        for row in rows:
-            events.append(
-                Event(
-                    event_type=row["event_type"],
-                    payload=json.loads(row["payload"]),
-                    created_at=datetime.fromisoformat(row["created_at"]),
+        with self._lock:
+            cursor = self._conn.cursor()
+            if event_type:
+                cursor.execute(
+                    "SELECT event_type, payload, created_at FROM events WHERE event_type = ?",
+                    (event_type,),
                 )
-            )
-        return events
+            else:
+                cursor.execute("SELECT event_type, payload, created_at FROM events")
+
+            rows = cursor.fetchall()
+            events: List[Event] = []
+            for row in rows:
+                events.append(
+                    Event(
+                        event_type=row["event_type"],
+                        payload=json.loads(row["payload"]),
+                        created_at=datetime.fromisoformat(row["created_at"]),
+                    )
+                )
+            return events
 
     # ------------------------------------------------------------------
     # Helpers

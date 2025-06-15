@@ -9,6 +9,7 @@ import psutil
 import structlog
 
 from agent.utils.event_bus import Event, EventBus
+from agent.utils.file_helpers import file_hash, is_file_signed
 
 logger = structlog.get_logger(__name__)
 
@@ -17,8 +18,12 @@ logger = structlog.get_logger(__name__)
 class ProcessInfo:
     pid: int
     name: str
-    exe: str | None
-    username: str | None
+    exe: str
+    username: str
+    cmdline: str
+    sha256: str
+    is_signed: bool
+    parent_pid: int
 
 
 class ProcessMonitor(threading.Thread):
@@ -64,8 +69,12 @@ class ProcessMonitor(threading.Thread):
                 info = ProcessInfo(
                     pid=pid,
                     name=proc.name(),
-                    exe=proc.exe() if proc.exe() else None,
-                    username=proc.username() if proc.username() else None,
+                    exe=proc.exe() or "",
+                    username=proc.username() or "",
+                    cmdline=" ".join(proc.cmdline()) if proc.cmdline() else "",
+                    sha256=file_hash(proc.exe()) if proc.exe() else "",
+                    is_signed=is_file_signed(proc.exe()) if proc.exe() else False,
+                    parent_pid=proc.ppid() or 0,
                 )
                 self.publish_new_process(info)
             except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -80,6 +89,10 @@ class ProcessMonitor(threading.Thread):
                 "name": info.name,
                 "exe": info.exe,
                 "username": info.username,
+                "cmdline": info.cmdline,
+                "sha256": info.sha256,
+                "is_signed": info.is_signed,
+                "parent_pid": info.parent_pid,
             },
         )
         logger.debug("Nuevo proceso detectado", pid=info.pid, name=info.name)

@@ -51,7 +51,9 @@ logs/
 *.log
 
 # Databases
+data/
 events.db
+events.db-journal
 *.sqlite
 *.sqlite3
 
