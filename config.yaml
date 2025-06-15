@@ -1,0 +1,4 @@
+app:
+  log_level: ${LOG_LEVEL}
+  event_db_path: ${EVENT_DB_PATH}
+  process_scan_interval: 2.0 
