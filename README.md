@@ -1,4 +1,14 @@
-# 🛡️ MiniAntivirus-IA
+![mini-antivirus-ia banner](docs/banner.png)
+
+# mini-antivirus-ia
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.x](https://img.shields.io/badge/Python-3.x-blue.svg)](https://python.org)
+[![Windows](https://img.shields.io/badge/Platform-Windows-blue.svg)](#)
+[![Status: alpha](https://img.shields.io/badge/Status-alpha-orange.svg)](#)
+![visitors](https://komarev.com/ghpvc/?username=drhiidden&repo=mini-antivirus-ia&color=00ff88&style=flat-square)
+
+**Catch what signatures miss.**
 
 Sistema de vigilancia y detección de comportamiento malicioso para Windows, basado en IA y arquitectura event-driven.
 
@@ -144,3 +154,8 @@ Las PRs son bienvenidas.  Antes de enviar, ejecuta:
 ## 📄 Licencia
 
 MIT © 2025 drhiidden 
+---
+
+## Metodología
+
+Desarrollado con [HCP (Human-Code-AI Protocol)](https://github.com/haletheia/human-code-ai-protocol) — protocolo git-native para Context Engineering.
