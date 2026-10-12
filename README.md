@@ -6,7 +6,8 @@
 [![Python 3.x](https://img.shields.io/badge/Python-3.x-blue.svg)](https://python.org)
 [![Windows](https://img.shields.io/badge/Platform-Windows-blue.svg)](#)
 [![Status: alpha](https://img.shields.io/badge/Status-alpha-orange.svg)](#)
-![visitors](https://komarev.com/ghpvc/?username=drhiidden&repo=mini-antivirus-ia&color=00ff88&style=flat-square)
+
+![views](https://visitor-badge.laobi.icu/badge?page_id=drhiidden.mini-antivirus-ia&title=views&left_color=555&right_color=0e75b6)
 
 **Catch what signatures miss.**
 
